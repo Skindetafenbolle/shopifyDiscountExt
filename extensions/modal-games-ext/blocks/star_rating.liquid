@@ -1,0 +1,120 @@
+<link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
+
+<script>
+    const fetchUrl = 'https://0571-77-91-102-66.ngrok-free.app/'
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.createElement('div');
+        modal.id = 'myModal';
+        modal.className = 'modal';
+    
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+    
+        const successMessage = document.createElement('div');
+        successMessage.id = 'successMessage';
+        successMessage.style.display = 'none'; // Начинаем с скрытия сообщения
+        successMessage.textContent = 'Промокод успешно отправлен на почту!';
+
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'close';
+        closeBtn.innerHTML = '&times;';
+        
+        const contentParagraph = document.createElement('p');
+        contentParagraph.textContent = 'Мини игра';
+        // Добавляем поле ввода электронной почты
+        const emailInput = document.createElement('input');
+        emailInput.type = 'email';
+        emailInput.placeholder = 'Введите вашу почту';
+        
+        const customButton = document.createElement('button');
+        customButton.textContent = 'Отправить письмо на почту';
+        modalContent.appendChild(successMessage);
+
+
+        customButton.addEventListener('click', function () {
+
+        const userEmail = emailInput.value;
+
+        customButton.disabled = true;
+
+
+        if (userEmail.length < 8 || !userEmail.includes('@')) {
+            // Показываем сообщение об ошибке валидации
+            alert('Пожалуйста, введите корректный адрес электронной почты.');
+            
+            // Включаем кнопку обратно
+            customButton.disabled = false;
+    
+            // Прекращаем выполнение функции
+            return;
+        }
+
+        fetch('https://0571-77-91-102-66.ngrok-free.app/webhooks/create-promo-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                eventType: 'custom_button_click_promoGenerate',
+                userEmail: userEmail,
+                // Другие данные, которые вы хотите отправить
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Обработка успешного ответа от сервера
+            console.log(data);
+
+            // Показываем сообщение об успешной отправке промокода
+            successMessage.style.display = 'block';
+            customButton.style.display = 'none';
+            contentParagraph.style.display = 'none';
+            emailInput.style.display = 'none';
+            closeBtn.style.display = 'none';
+
+            setTimeout(function () {
+                modal.style.display = 'none';
+
+            }, 1000);
+        })
+        .catch(error => {
+            // Обработка ошибки
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+
+    });
+    
+        modalContent.appendChild(closeBtn);
+        modalContent.appendChild(contentParagraph);
+        modalContent.appendChild(emailInput); // Добавляем поле ввода в модальное окно
+        modalContent.appendChild(customButton);
+        modal.appendChild(modalContent);
+    
+        document.body.appendChild(modal);
+    
+        setTimeout(function () {
+            modal.style.display = 'block';
+        }, 500);
+    
+        closeBtn.addEventListener('click', function () {
+            modal.style.display = 'none';
+        });
+    });
+    
+</script>
+
+
+
+{% schema %}
+{
+  "name": "Star Rating",
+  "target": "section",
+  "settings": []
+}
+{% endschema %}
+
